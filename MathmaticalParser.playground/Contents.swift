@@ -86,8 +86,8 @@ class ExpressionNode{
 class shuntingYard{
     var opStack: [String] = []
     var numStack: [String] = []
-    let operations = ["+" : 0,"-" :  0,"*" : 1,"/" : 1]
-    let opList = ["+","-","*","/"]
+    let operations = ["+" : 0,"-" :  0,"*" : 1,"/" : 1, "^" : 2]
+    let opList = ["+","-","*","/","^"]
     var parenString: [String] = []
     func shunt(formula: String){
         let form = String(reverse(formula))
@@ -171,32 +171,37 @@ class shuntingYard{
     func makeTree(ops: [String], nums: [String]) -> ExpressionNode{
         var opArray = ops
         var numArray = nums
-        let op = opArray[0]
-        opArray.removeAtIndex(0)
-        var right: AnyObject = numArray[0]
-        numArray.removeAtIndex(0)
-        var left: AnyObject
-        if opArray.isEmpty {
-            left = numArray[0]
+        if !opArray.isEmpty{
+            let op = opArray[0]
+            opArray.removeAtIndex(0)
+            var right: AnyObject = numArray[0]
             numArray.removeAtIndex(0)
-            if ((count(left as! String) > 2 && ((left as! String).rangeOfString("+") != nil || (left as! String).rangeOfString("*") != nil || (left as! String).rangeOfString("/") != nil || (left as! String).rangeOfString("-") != nil ))) {
+            var left: AnyObject
+            if opArray.isEmpty {
+                left = numArray[0]
+                numArray.removeAtIndex(0)
+                if ((count(left as! String) > 2 && ((left as! String).rangeOfString("+") != nil || (left as! String).rangeOfString("*") != nil || (left as! String).rangeOfString("/") != nil || (left as! String).rangeOfString("-") != nil || (left as! String).rangeOfString("^") != nil))) {
                 
-                let sh = shuntingYard()
-                sh.shunt(left as! String)
-                left = sh.makeTree(sh.opStack, nums: sh.numStack)
+                    let sh = shuntingYard()
+                    sh.shunt(left as! String)
+                    left = sh.makeTree(sh.opStack, nums: sh.numStack)
+                }
+            } else {
+                left = makeTree(opArray, nums: numArray)
             }
+            if ((count(right as! String) > 2 && ((right as! String).rangeOfString("+") != nil || (right as! String).rangeOfString("*") != nil || (right as! String).rangeOfString("/") != nil || (right as! String).rangeOfString("-") != nil || (right as! String).rangeOfString("^") != nil))) {
+                let sh = shuntingYard()
+                sh.shunt(right as! String)
+                right = sh.makeTree(sh.opStack, nums: sh.numStack)
+            }
+            let ex = ExpressionNode()
+            ex.initWithContent(op, leftValue: left, rightValue: right)
+            return ex
         } else {
-    
-            left = makeTree(opArray, nums: numArray)
+            let newMathTree = MathmaticalTree()
+            let ex = newMathTree.initWithFormula(numArray[0] as String)
+            return ex
         }
-        if ((count(right as! String) > 2 && ((right as! String).rangeOfString("+") != nil || (right as! String).rangeOfString("*") != nil || (right as! String).rangeOfString("/") != nil || (right as! String).rangeOfString("-") != nil ))) {
-            let sh = shuntingYard()
-            sh.shunt(right as! String)
-            right = sh.makeTree(sh.opStack, nums: sh.numStack)
-        }
-        let ex = ExpressionNode()
-        ex.initWithContent(op, leftValue: left, rightValue: right)
-        return ex
     }
 }
 
@@ -244,7 +249,8 @@ class MathmaticalTree{
 
 
 let mathTree = MathmaticalTree()
-let start = mathTree.initWithFormula("( 3 + 7 ) * ( 4 + x )")
+//let start = mathTree.initWithFormula("( ( 3 + 7 * ( 6 + 8 ) ) * ( 4 + 4 * ( 1 + 7 ) ) - ( 8 * x ) )")
+let start = mathTree.initWithFormula("( 6 ^ ( 4 + 4 ) * 7 ^ ( 5 * x ) )")
 start.printNodeAndChildren("", isTail: true)
 
 
