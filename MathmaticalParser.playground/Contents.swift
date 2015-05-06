@@ -87,7 +87,7 @@ class shuntingYard{
     var opStack: [String] = []
     var numStack: [String] = []
     let operations = ["+" : 0,"-" :  0,"*" : 1,"/" : 1]
-    var finalList: [AnyObject] = []
+    let opList = ["+","-","*","/"]
     var parenString: [String] = []
     func shunt(formula: String){
         let form = String(reverse(formula))
@@ -113,17 +113,18 @@ class shuntingYard{
                 parenString .append(token)
                 continue
             }
-            
+
             if isNumeric(token) || isVariable(token){
                 numStack.append(token)
-            } else {
+            }
+            if isOperation(token){
                 if opStack.isEmpty{
                     opStack.append(token)
                 } else if (getOpPrecedence(token) < getOpPrecedence(opStack.last!)){
                     let op = opStack.last!
                     let right = numStack.last!
                     let left = numStack[numStack.count-2]
-                    let new = "\(left) \(op) \(right)"
+                    let new = "( \(left) ) \(op) ( \(right) )"
                     opStack.removeLast()
                     numStack.removeLast()
                     numStack.removeLast()
@@ -133,7 +134,9 @@ class shuntingYard{
                     opStack.append(token)
                 }
             }
+            
         }
+        
     }
     func isNumeric(num: String) -> Bool{
         let temp = num.toInt()
@@ -144,11 +147,11 @@ class shuntingYard{
         }
     }
     func isVariable(x: String) -> Bool{
-        let charset = NSCharacterSet(charactersInString: "abcdefghijklmnopqrstuvwxyz")
-        return x.rangeOfCharacterFromSet(charset, options: nil, range: nil) != nil
+        let charList = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+        return contains(charList,x)
     }
     func isOperation(op: String) -> Bool{
-        let opList = ["+","-","*","/"]
+        
         return contains(opList,op)
     }
     func getOpPrecedence(op: String) -> Int {
@@ -158,25 +161,6 @@ class shuntingYard{
             return -1
         }
     }
-    func finalize(){
-        while(!numStack.isEmpty){
-            if finalList.isEmpty{
-                let right = numStack.last!
-                let left = numStack[numStack.count-2]
-                let op = opStack.last!
-                finalList = [op,left,right]
-                numStack.removeLast()
-                numStack.removeLast()
-                opStack.removeLast()
-            }else{
-                let right = numStack.last!
-                let op = opStack.last!
-                finalList = [op,finalList,right]
-                numStack.removeLast()
-                opStack.removeLast()
-            }
-        }
-    }
     func height(Node: ExpressionNode) -> Int{
         if Node.leaf{
             return 1
@@ -184,30 +168,34 @@ class shuntingYard{
             return height(Node.left as! ExpressionNode ) + 1
         }
     }
+    func makeTree(ops: [String], nums: [String]) -> ExpressionNode{
+        var opArray = ops
+        var numArray = nums
+        let op = opArray[0]
+        opArray.removeAtIndex(0)
+        var right: AnyObject = numArray[0]
+        numArray.removeAtIndex(0)
+        var left: AnyObject
+        if opArray.isEmpty {
+            left = numArray[0]
+            numArray.removeAtIndex(0)
+            if ((count(left as! String) > 2 && ((left as! String).rangeOfString("+") != nil || (left as! String).rangeOfString("*") != nil || (left as! String).rangeOfString("/") != nil || (left as! String).rangeOfString("-") != nil ))) {
+                
+                let sh = shuntingYard()
+                sh.shunt(left as! String)
+                left = sh.makeTree(sh.opStack, nums: sh.numStack)
+            }
+        } else {
     
-    func makeTree(opArray: AnyObject) -> ExpressionNode{
-        var right: AnyObject! = opArray[2] as! String
-        var left: AnyObject = opArray[1]
-        if let l = left as? [String]{
-            left = "\(l[2]) \(l[0]) \(l[1])"
+            left = makeTree(opArray, nums: numArray)
         }
-        if let r = right as? [String]{
-            right = "\(r[2]) \(r[0]) \(r[1])"
+        if ((count(right as! String) > 2 && ((right as! String).rangeOfString("+") != nil || (right as! String).rangeOfString("*") != nil || (right as! String).rangeOfString("/") != nil || (right as! String).rangeOfString("-") != nil ))) {
+            let sh = shuntingYard()
+            sh.shunt(right as! String)
+            right = sh.makeTree(sh.opStack, nums: sh.numStack)
         }
-        let charset = NSCharacterSet(charactersInString: "+*/-")
-        if (count(right as! String) > 2 && (right as! String).rangeOfCharacterFromSet(charset, options: nil, range: nil) != nil) {
-            let rightMathTree = MathmaticalTree()
-            let rightRoot = rightMathTree.initWithFormula(right as! String)
-            right = rightRoot
-            
-        }
-        if (count(left as! String) > 2 && (left as! String).rangeOfCharacterFromSet(charset, options: nil, range: nil) != nil) {
-            let leftMathTree = MathmaticalTree()
-            let leftRoot = leftMathTree.initWithFormula(left as! String)
-            left = leftRoot
-        }
-        var ex = ExpressionNode()
-        ex.initWithContent(opArray[0], leftValue: left, rightValue: right)
+        let ex = ExpressionNode()
+        ex.initWithContent(op, leftValue: left, rightValue: right)
         return ex
     }
 }
@@ -249,15 +237,14 @@ class MathmaticalTree{
     var root = ExpressionNode()
     func initWithFormula(formula: String) -> ExpressionNode{
         ShuntingYard.shunt(formula)
-        ShuntingYard.finalize()
-        root = ShuntingYard.makeTree(ShuntingYard.finalList)
+        root = ShuntingYard.makeTree(ShuntingYard.opStack,nums: ShuntingYard.numStack)
         return root
     }
 }
 
 
 let mathTree = MathmaticalTree()
-let start = mathTree.initWithFormula("( 6 * ( a + b ) ) - 5")
+let start = mathTree.initWithFormula("( 3 + 7 ) * ( 4 + x )")
 start.printNodeAndChildren("", isTail: true)
 
 
