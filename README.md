@@ -1,9 +1,14 @@
-# SwiftMathematicalParser
+# Mathematical Parser for Swift
 # Created by Alexander Russell
-This Mathematical Parser is a very easy to use and implement into a project.
-In order to use this parser 
-just create a new instance of the MathmaticalTree class
-call MathmaticalTree.initWithFormula(formula: String) // this will return the root node of the tree
-The root node is of type ExpressionNode this class has a method printNodeAndChildren() this method will print the node and everything below it in the tree.
+This is a Mathematical Parser for the Swift language.
+USE:
+    let mathTree = MathmaticalTree()
+    let start = mathTree.initWithFormula("( 3 + 7 ) * ( 4 + x )")
+    start.printNodeAndChildren("", isTail: true)
+This will print the entire tree.
+
+This project was deisigned out of the need to get an Abstract Syntax Tree for math in the swift language.
+
+If there are any question, comments, or ideas to help improve this parser please visit or join the google group Mathematical-Parser-Swift-Dev
 
 
