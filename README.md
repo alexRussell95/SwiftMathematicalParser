@@ -1,4 +1,4 @@
-# MathematicalParser
+# SwiftMathematicalParser
 # Created by Alexander Russell
 This Mathematical Parser is a very easy to use and implement into a project.
 In order to use this parser 
