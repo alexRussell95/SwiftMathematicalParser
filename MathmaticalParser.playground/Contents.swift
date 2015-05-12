@@ -146,6 +146,26 @@ class shuntingYard{
         }
         
     }
+    func compress(expanded: String) -> String{
+        return expanded.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+    }
+    func expand(compressed: String) -> String{
+        var expanded = ""
+        let characters = Array(compressed)
+        for char in characters{
+            if isOperation("\(char)") || char == ")" || char == "(" {
+                expanded.append(Character(" "))
+                expanded.append(char)
+                expanded.append(Character(" "))
+            } else {
+                expanded.append(char)
+            }
+        }
+    
+        return expanded
+    }
+    
+    
     func isNumeric(num: String) -> Bool{
         let temp = num.toInt()
         if temp == nil{
@@ -281,7 +301,8 @@ class MathmaticalTree{
     var ShuntingYard = shuntingYard()
     var root = ExpressionNode()
     func initWithFormula(formula: String) -> ExpressionNode{
-        ShuntingYard.shunt(formula)
+        let tokenized = ShuntingYard.expand(ShuntingYard.compress(formula))
+        ShuntingYard.shunt(tokenized)
         root = ShuntingYard.makeTree(ShuntingYard.opStack,nums: ShuntingYard.numStack)
         return root
     }
@@ -291,7 +312,7 @@ class MathmaticalTree{
 let mathTree = MathmaticalTree()
 
 //let start = mathTree.initWithFormula("2 + 3 * 51 + 7")
-let start = mathTree.initWithFormula("( ( 3 + 7 * ( 671 + 8 ) ) * ( 45 + 4 * ( 1 + 7 ) ) - ( 18 * x ) )")
+let start = mathTree.initWithFormula("((3+7*(671+8))*(45+4*(1+7))-(18*x))")
 //let start = mathTree.initWithFormula("( 6 ^ ( 4 + 4 ) * 7 ^ ( 5 * x ) )")
 //let start = mathTree.initWithFormula("( x * y ) *  -17 ")
 
