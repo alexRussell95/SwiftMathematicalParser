@@ -99,6 +99,14 @@ class shuntingYard{
                     parens--
                     if parens == 0 {
                         parenString.removeAtIndex(0)
+                        
+                        for (var i = 0; i < parenString.count; i++){
+                            var temp = parenString[i]
+                            if isNumeric(temp) || isNegative(temp){
+                                temp = reverseStr(temp)
+                            }
+                            parenString[i] = temp
+                         }
                         var subPar = " ".join(reverse(parenString))
                         numStack.append(subPar)
                         parenString.removeAll(keepCapacity: false)
@@ -114,8 +122,8 @@ class shuntingYard{
                 continue
             }
 
-            if isNumeric(token) || isVariable(token){
-                numStack.append(token)
+            if isNumeric(token) || isVariable(token) || isNegative(token){
+                numStack.append(reverseStr(token))
             }
             if isOperation(token){
                 if opStack.isEmpty{
@@ -146,6 +154,27 @@ class shuntingYard{
             return true
         }
     }
+    func reverseStr(str: String) -> String {
+        let charArray = reverse(str)
+        var reverseStr = ""
+        for char in charArray{
+            reverseStr.append(char)
+        }
+        return reverseStr as String
+        
+    }
+    func isNegative(num: String) -> Bool {
+        if count(num) >= 2{
+            if contains(num, "-"){
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return false
+        }
+    }
+    
     func isVariable(x: String) -> Bool{
         let charList = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
         return contains(charList,x)
@@ -180,20 +209,31 @@ class shuntingYard{
             if opArray.isEmpty {
                 left = numArray[0]
                 numArray.removeAtIndex(0)
-                if ((count(left as! String) > 2 && ((left as! String).rangeOfString("+") != nil || (left as! String).rangeOfString("*") != nil || (left as! String).rangeOfString("/") != nil || (left as! String).rangeOfString("-") != nil || (left as! String).rangeOfString("^") != nil))) {
-                
-                    let sh = shuntingYard()
-                    sh.shunt(left as! String)
-                    left = sh.makeTree(sh.opStack, nums: sh.numStack)
+                if count(left as! String) > 2 {
+                    if contains(left as! String, " ") {
+                        if (left as! String).rangeOfString("+") != nil || (left as! String).rangeOfString("*") != nil || (left as! String).rangeOfString("/") != nil || (left as! String).rangeOfString("-") != nil || (left as! String).rangeOfString("^") != nil{
+                            
+                            let sh = shuntingYard()
+                            sh.shunt(left as! String)
+                            left = sh.makeTree(sh.opStack, nums: sh.numStack)
+                        }
+                    }
                 }
             } else {
                 left = makeTree(opArray, nums: numArray)
             }
-            if ((count(right as! String) > 2 && ((right as! String).rangeOfString("+") != nil || (right as! String).rangeOfString("*") != nil || (right as! String).rangeOfString("/") != nil || (right as! String).rangeOfString("-") != nil || (right as! String).rangeOfString("^") != nil))) {
-                let sh = shuntingYard()
-                sh.shunt(right as! String)
-                right = sh.makeTree(sh.opStack, nums: sh.numStack)
+
+            if count(right as! String) > 2 {
+                if contains(right as! String, " ") {
+                    if (right as! String).rangeOfString("+") != nil || (right as! String).rangeOfString("*") != nil || (right as! String).rangeOfString("/") != nil || (right as! String).rangeOfString("-") != nil || (right as! String).rangeOfString("^") != nil{
+                        let sh = shuntingYard()
+                        sh.shunt(right as! String)
+                        right = sh.makeTree(sh.opStack, nums: sh.numStack)
+                    }
+                }
             }
+            
+            
             let ex = ExpressionNode()
             ex.initWithContent(op, leftValue: left, rightValue: right)
             return ex
@@ -249,8 +289,12 @@ class MathmaticalTree{
 
 
 let mathTree = MathmaticalTree()
-//let start = mathTree.initWithFormula("( ( 3 + 7 * ( 6 + 8 ) ) * ( 4 + 4 * ( 1 + 7 ) ) - ( 8 * x ) )")
-let start = mathTree.initWithFormula("( 6 ^ ( 4 + 4 ) * 7 ^ ( 5 * x ) )")
+
+//let start = mathTree.initWithFormula("2 + 3 * 51 + 7")
+let start = mathTree.initWithFormula("( ( 3 + 7 * ( 671 + 8 ) ) * ( 45 + 4 * ( 1 + 7 ) ) - ( 18 * x ) )")
+//let start = mathTree.initWithFormula("( 6 ^ ( 4 + 4 ) * 7 ^ ( 5 * x ) )")
+//let start = mathTree.initWithFormula("( x * y ) *  -17 ")
+
 start.printNodeAndChildren("", isTail: true)
 
 
