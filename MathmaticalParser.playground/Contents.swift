@@ -209,6 +209,7 @@ class shuntingYard{
         }else{
             return -1
         }
+        
     }
     func height(Node: ExpressionNode) -> Int{
         if Node.leaf{
