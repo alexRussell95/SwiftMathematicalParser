@@ -1,4 +1,4 @@
-//  Created by Alexander Russell on 4/15/15.
+//  Created by Alexander Russell on 4/15/15. This is some test!!
 //  Copyright (c) 2015 Alexander Russell. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -209,7 +209,7 @@ class shuntingYard{
         }else{
             return -1
         }
-        
+
     }
     func height(Node: ExpressionNode) -> Int{
         if Node.leaf{
