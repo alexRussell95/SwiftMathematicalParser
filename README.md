@@ -11,4 +11,4 @@ This project was deisigned out of the need to get an Abstract Syntax Tree for ma
 
 If there are any question, comments, or ideas to help improve this parser please visit or join the google group Mathematical-Parser-Swift-Dev
 
-
+Matt Oriold
